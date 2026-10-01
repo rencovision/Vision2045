@@ -838,7 +838,7 @@ const LOGO_LOGIN="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA4QAAAE2CAYAAAA5
 const SK="renco_sesi_2045",UK="renco_akun_2045";
 const KEY="renco_sistem_2045";
 // ---- Supabase sync (tabel renco_store: key text PK, value jsonb, updated_at timestamptz)
-const SB_URL="https://gjvyzoapthzqalhuglsm.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdqdnl6b2FwdGh6cWFsaHVnbHNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4Mzk0OTcsImV4cCI6MjEwNjQxNTQ5N30.L0hBdrt4FcJ03JY_SKNc947b1nsAKOKJry354vgXgCc",SBT="renco_sb_ts_2045",SBC="renco_sb_cfg_2045";
+const SB_URL="https://xmbknvdzfikkpyokqvig.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhtYmtudmR6Zmlra3B5b2txdmlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4NDM1NjQsImV4cCI6MjEwNjQxOTU2NH0.he1QTcPNNN-EGOGUi3axAEQ8gP-QgbKUvjW6NGM2hdw",SBT="renco_sb_ts_2045",SBC="renco_sb_cfg_2045";
 let sbOk=0,sbTm=0,sbRt=0,sbMsg="",sbD={},sbBusy=0;
 const sbC=()=>{let c={};try{c=JSON.parse(localStorage.getItem(SBC))||{}}catch(e){}return{u:(SB_URL||c.u||"").trim().replace(/\/+$/,""),k:(SB_KEY||c.k||"").trim()}};
 const sbTs=()=>{try{return JSON.parse(localStorage.getItem(SBT))||{}}catch(e){return{}}};
