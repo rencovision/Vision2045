@@ -1180,7 +1180,7 @@ const kel=d=>{const a=age(d);return a==="-"?"-":a<13?"Anak (<13)":a<18?"Remaja (
 const OP={};document.addEventListener("toggle",e=>{const k=e.target.dataset&&e.target.dataset.k;if(k)OP[k]=e.target.open},true);
 const genCard=a=>{const G=["Gen Alpha","Gen Z","Milenial","Gen X","Baby Boomer"],K=["Anak (<13)","Remaja (13–17)","18–24","25–30","31–40","41+"],bar=(L,f)=>{const c=L.map(x=>a.filter(m=>m.lahir&&f(m.lahir)==x).length),mx=Math.max(1,...c);return L.map((x,i)=>`<div class="mut">${x} (${c[i]})</div><div class="bar"><i style="width:${c[i]/mx*100}%"></i></div>`).join("")};return `<details class="card fold" data-k="gen" ${OP.gen?"open":""}><summary class="sh"><i>🧬</i>Generasi & Kelompok Usia<span class="chv">${ico("chev")}</span></summary><b class="mut">Generasi</b>${bar(G,gen)}<b class="mut">Kelompok usia</b>${bar(K,kel)}<div class="mut">Berdasarkan tanggal lahir sesuai KTP. Anggota tanpa tanggal lahir tidak dihitung.</div></details>`};
 const FM=[{k:"nama",l:"Nama lengkap *"},{k:"jk",l:"Jenis kelamin",t:"select",o:["Laki-laki","Perempuan"]},LH,WA,ALM,{k:"divisi",l:"Divisi (boleh lebih dari satu)",t:"multi",o:DIV},{k:"jabatan",l:"Jabatan (mis. Ketua, Anggota)"},{k:"status",l:"Status",t:"select",o:["Aktif","Nonaktif"]},{k:"gabung",l:"Tanggal bergabung",t:"date",h:"No. Anggota otomatis: tanggal-bulan-tahun bergabung + nomor urut pendaftaran (contoh 30092026-001)."},{k:"keahlian",l:"Keahlian / minat"}];
-const FK=[{k:"judul",l:"Nama kegiatan *"},{k:"tanggal",l:"Tanggal mulai",t:"date"},{k:"sampai",l:"Tanggal selesai",t:"date",h:"Isi bila kegiatan berlangsung lebih dari satu hari (boleh lintas bulan). Kosongkan bila hanya sehari."},{k:"mulai",l:"Jam mulai",t:"time"},{k:"selesai",l:"Jam selesai",t:"time",h:"Boleh dikosongkan bila belum pasti."},{k:"harian",l:"Absensi setiap hari pelaksanaan",t:"select",o:["Tidak","Ya"],h:"Pilih Ya bila kegiatan berlangsung lebih dari satu hari dan anggota harus absen setiap harinya (isi Tanggal selesai)."},{k:"lokasi",l:"Lokasi"},{k:"butuh",l:"Butuh relawan (jumlah orang, kosongkan bila tidak perlu)",t:"number"},{k:"catatan",l:"Catatan / notulen",t:"textarea"}];
+const FK=[{k:"judul",l:"Nama kegiatan *"},{k:"jenis",l:"Jenis",t:"select",o:["Kegiatan","Campaign"],h:"Kegiatan: anggota perlu hadir dan dicatat absensinya. Campaign: tidak perlu absensi, anggota cukup menandai partisipasinya."},{k:"tanggal",l:"Tanggal mulai",t:"date"},{k:"sampai",l:"Tanggal selesai",t:"date",h:"Isi bila kegiatan berlangsung lebih dari satu hari (boleh lintas bulan). Kosongkan bila hanya sehari."},{k:"mulai",l:"Jam mulai",t:"time"},{k:"selesai",l:"Jam selesai",t:"time",h:"Boleh dikosongkan bila belum pasti."},{k:"harian",l:"Absensi setiap hari pelaksanaan",t:"select",o:["Tidak","Ya"],h:"Pilih Ya bila kegiatan berlangsung lebih dari satu hari dan anggota harus absen setiap harinya (isi Tanggal selesai)."},{k:"lokasi",l:"Lokasi"},{k:"peta",l:"Tautan peta / koordinat (opsional)",h:"Tempel tautan Google Maps atau koordinat, mis. -6.2088,106.8456. Bila kosong, peta dicari dari nama Lokasi."},{k:"butuh",l:"Butuh relawan (jumlah orang, kosongkan bila tidak perlu)",t:"number"},{k:"target",l:"Target partisipasi (khusus Campaign, boleh kosong)",t:"number"},{k:"tautan",l:"Tautan Campaign / info tambahan (opsional)"},{k:"catatan",l:"Catatan / notulen",t:"textarea"}];
 const FS=[{k:"ket",l:"Keterangan *"},{k:"tanggal",l:"Tanggal",t:"date"},{k:"jenis",l:"Jenis",t:"select",o:["Masuk","Keluar"]},{k:"jumlah",l:"Jumlah (Rp)",t:"number"}];
 const FP=[{k:"judul",l:"Nama program *"},{k:"pilar",l:"Kementerian / Divisi",t:"select",o:PIL},{k:"jenis",l:"Jangka waktu",t:"select",o:["Jangka pendek / periode tertentu","Jangka menengah (hingga 2030)","Jangka panjang (hingga 2045)"]},{k:"periode",l:"Periode (mis. Jan–Des 2026)"},{k:"target",l:"Target tahun"},{k:"catatan",l:"Catatan",t:"textarea"}];
 [FK,FS].forEach(f=>f.push({k:"divisi",l:"Divisi pengelola",t:"select",o:["Umum",...DIV],h:"Pengurus hanya bisa mengubah data divisinya sendiri. \"Umum\" hanya bisa diubah Admin."}));
@@ -1227,8 +1227,8 @@ home(){const a=S.anggota.filter(x=>x.status!="Nonaktif"),m=S.kas.reduce((t,r)=>t
  <div class="card"><div class="sh"><i>🎂</i>Ulang tahun bulan ini</div>${bd.length?`<div class="bdc">${bd.map(x=>`<span class="pill"><b>${new Date(x.lahir).getDate()}</b>${esc(x.nama)}<em>${age(x.lahir)+(new Date(x.lahir).getDate()>=new Date().getDate()?1:0)} th</em></span>`).join("")}</div>`:'<span class="mut">Tidak ada.</span>'}</div>
  ${quoteCard()}${genCard(a)}<details class="card fold" data-k="div" ${OP.div?"open":""}><summary class="sh"><i>📊</i>Anggota per divisi<span class="chv">${ico("chev")}</span></summary>${DIV.map(d=>{const n=a.filter(x=>inDiv(x,d)).length;return `<div class="dv"><span>${d}</span><b>${n}</b></div><div class="bar"><i style="width:${n/mx*100}%"></i></div>`}).join("")}</details>`},
 anggota(){return `<div class="row" style="margin-bottom:10px"><h2 class="sp" style="margin:0;font-size:16px">Anggota <span class="mut" style="font-weight:400">${(me.r=="Anggota"||me.r=="Staff Khusus")?S.anggota.filter(x=>x.status!="Nonaktif").length:S.anggota.length}</span></h2><button class="b y" data-a="addM">+ Tambah</button></div><div class="row" style="margin-bottom:10px"><input id="q" class="sp" placeholder="${me.r=='Anggota'?'Cari nama / divisi':'Cari nama / alamat / keahlian'}" value="${esc(q)}"><select id="fdv" style="width:auto"><option value="">Semua divisi</option>${DIV.map(d=>`<option ${fdv==d?"selected":""}>${d}</option>`).join("")}</select></div><div id="lst" class="card ml">${memList()}</div>`},
-absensi(){const n=S.anggota.filter(x=>x.status!="Nonaktif").length,ar=AF=="arsip",L=[...S.kegiatan].filter(k=>!!k.arsip==ar).sort((x,y)=>(y.tanggal||"")<(x.tanggal||"")?-1:1);return `<div class="row" style="margin-bottom:10px"><h2 class="sp" style="margin:0">✅ Absensi</h2><button class="b y" data-a="pdfR">📄 Rekap PDF</button></div><div class="row" style="gap:6px;margin-bottom:10px"><button class="b ${ar?"g":"y"}" data-a="afl" data-id="aktif">Aktif (${S.kegiatan.filter(k=>!k.arsip).length})</button><button class="b ${ar?"y":"g"}" data-a="afl" data-id="arsip">🗄️ Arsip (${S.kegiatan.filter(k=>k.arsip).length})</button></div><p class="mut" style="margin:0 0 10px">${ar?"Arsip menyimpan daftar hadir tiap kegiatan. Datanya terkunci; unduh PDF kapan saja atau buka arsip bila perlu diubah.":"Catat kehadiran anggota per kegiatan: centang manual atau scan kartu anggota. Kegiatan yang sudah selesai bisa diarsipkan."}</p>`+L.map(k=>{const n0=k.snap?k.snap.length:n;return `<div class="card"><div class="row"><b class="sp">${esc(k.judul)}</b>${k.arsip?'<span class="tag">🗄️ Arsip</span>':`<span class="tag">${ks(k)}</span>`}</div><div class="mut">${fdr(k)} • ${wk(k)}${esc(k.lokasi)}</div>${k.arsip?`<div class="mut">Diarsipkan ${fd((k.arsipAt||"").slice(0,10))}${k.arsipOleh?" oleh "+esc(k.arsipOleh):""}</div>`:""}${isH(k)?hariAbs(k,n0,!!k.arsip):`${k.hadir?`<div class="mut">Hadir ${k.hadir.length} dari ${n0} anggota aktif (${n0?Math.round(k.hadir.length/n0*100):0}%)</div>`:`<div class="mut">Belum ada absensi.</div>`}${k.arsip?"":`<div class="row"><button class="l" data-a="abs" data-id="${k.id}">Absensi</button><button class="l" data-a="scan" data-id="${k.id}">📷 Scan</button></div>`}`}<div class="row"><button class="l" data-a="pdfA" data-id="${k.id}">📄 PDF</button><button class="l" data-a="arsipK" data-id="${k.id}">${k.arsip?"Buka arsip":"🗄️ Arsipkan"}</button></div></div>`}).join("")||`<p class="mut">${ar?"Belum ada kegiatan yang diarsipkan.":"Tidak ada kegiatan aktif."}</p>`},
-kegiatan(){const n=S.anggota.filter(x=>x.status!="Nonaktif").length;return `<div class="row" style="margin-bottom:10px"><h2 class="sp" style="margin:0">📅 Kegiatan</h2><button class="b y" data-a="addK">+ Tambah</button></div>`+[...S.kegiatan].sort((x,y)=>(y.tanggal||"")<(x.tanggal||"")?-1:1).map(k=>`<div class="card"><div class="row"><b class="sp">${esc(k.judul)}</b><span class="tag">${ks(k)}</span>${k.arsip?'<span class="tag">🗄️ Arsip</span>':""}</div><div class="mut">${fdr(k)} • ${wk(k)}${esc(k.lokasi)}</div>${k.catatan?`<div>${esc(k.catatan)}</div>`:""}${isH(k)?`<div class="mut">Absensi dicatat setiap hari (${hariK(k).length} hari)</div>`:k.hadir?`<div class="mut">Hadir ${k.hadir.length} dari ${n} anggota aktif (${n?Math.round(k.hadir.length/n*100):0}%)</div>`:""}${me.mid&&k.hadir?(isH(k)?`<span class="tag ${hcnt(k,me.mid)?"ok":"off"}">Anda hadir ${hcnt(k,me.mid)} dari ${hariK(k).length} hari</span>`:(k.hadir.includes(me.mid)?'<span class="tag ok">Anda hadir</span>':'<span class="tag off">Anda tidak hadir</span>')):""}${evAct(k)}<div class="row"><button class="l" data-a="editK" data-id="${k.id}">Ubah</button><button class="l r" data-a="delK" data-id="${k.id}">Hapus</button></div></div>`).join("")||'<p class="mut">Belum ada kegiatan.</p>'},
+absensi(){const n=S.anggota.filter(x=>x.status!="Nonaktif").length,ar=AF=="arsip",L=[...S.kegiatan].filter(k=>!!k.arsip==ar&&!isCmp(k)).sort((x,y)=>(y.tanggal||"")<(x.tanggal||"")?-1:1);return `<div class="row" style="margin-bottom:10px"><h2 class="sp" style="margin:0">✅ Absensi</h2><button class="b y" data-a="pdfR">📄 Rekap PDF</button></div><div class="row" style="gap:6px;margin-bottom:10px"><button class="b ${ar?"g":"y"}" data-a="afl" data-id="aktif">Aktif (${S.kegiatan.filter(k=>!k.arsip).length})</button><button class="b ${ar?"y":"g"}" data-a="afl" data-id="arsip">🗄️ Arsip (${S.kegiatan.filter(k=>k.arsip).length})</button></div><p class="mut" style="margin:0 0 10px">${ar?"Arsip menyimpan daftar hadir tiap kegiatan. Datanya terkunci; unduh PDF kapan saja atau buka arsip bila perlu diubah.":"Catat kehadiran anggota per kegiatan: centang manual atau scan kartu anggota. Kegiatan yang sudah selesai bisa diarsipkan."}</p>`+L.map(k=>{const n0=k.snap?k.snap.length:n;return `<div class="card"><div class="row"><b class="sp">${esc(k.judul)}</b>${k.arsip?'<span class="tag">🗄️ Arsip</span>':`<span class="tag">${ks(k)}</span>`}</div><div class="mut">${fdr(k)} • ${wk(k)}${esc(k.lokasi)}</div>${k.arsip?`<div class="mut">Diarsipkan ${fd((k.arsipAt||"").slice(0,10))}${k.arsipOleh?" oleh "+esc(k.arsipOleh):""}</div>`:""}${isH(k)?hariAbs(k,n0,!!k.arsip):`${k.hadir?`<div class="mut">Hadir ${k.hadir.length} dari ${n0} anggota aktif (${n0?Math.round(k.hadir.length/n0*100):0}%)</div>`:`<div class="mut">Belum ada absensi.</div>`}${k.arsip?"":`<div class="row"><button class="l" data-a="abs" data-id="${k.id}">Absensi</button><button class="l" data-a="scan" data-id="${k.id}">📷 Scan</button></div>`}`}<div class="row"><button class="l" data-a="pdfA" data-id="${k.id}">📄 PDF</button><button class="l" data-a="arsipK" data-id="${k.id}">${k.arsip?"Buka arsip":"🗄️ Arsipkan"}</button></div></div>`}).join("")||`<p class="mut">${ar?"Belum ada kegiatan yang diarsipkan.":"Tidak ada kegiatan aktif."}</p>`},
+kegiatan(){const n=S.anggota.filter(x=>x.status!="Nonaktif").length;return `<div class="row" style="margin-bottom:10px"><h2 class="sp" style="margin:0">📅 Kegiatan</h2><button class="b y" data-a="addK">+ Tambah</button></div>`+[...S.kegiatan].sort((x,y)=>(y.tanggal||"")<(x.tanggal||"")?-1:1).map(k=>kCard(k,n)).join("")||'<p class="mut">Belum ada kegiatan.</p>'},
 kas(){const i=S.kas.filter(r=>r.jenis=="Masuk").reduce((s,r)=>s+(+r.jumlah||0),0),o=S.kas.filter(r=>r.jenis!="Masuk").reduce((s,r)=>s+(+r.jumlah||0),0);return `<div class="row" style="margin-bottom:10px"><h2 class="sp" style="margin:0">💰 Kepeng</h2><button class="b y" data-a="addS">+ Transaksi</button></div><p class="mut" style="margin:0 0 10px"><b>Kelola Pendapatan &amp; Pengeluaran</b> — dikelola oleh Kementerian Keuangan dan Administrasi.</p>${aparenExtra()}<div class="grid"><div class="st"><b class="in">${rp(i)}</b><span>Pemasukan</span></div><div class="st"><b class="out">${rp(o)}</b><span>Pengeluaran</span></div><div class="st"><b>${rp(i-o)}</b><span>Saldo</span></div></div>`+[...S.kas].sort((x,y)=>(y.tanggal||"")<(x.tanggal||"")?-1:1).map(r=>`<div class="card"><div class="row"><b class="sp">${esc(r.ket)}</b><span class="${r.jenis=="Masuk"?"in":"out"}">${r.jenis=="Masuk"?"+":"−"}${rp(+r.jumlah)}</span></div><div class="mut">${fd(r.tanggal)}</div><div class="row"><button class="l" data-a="editS" data-id="${r.id}">Ubah</button><button class="l r" data-a="delS" data-id="${r.id}">Hapus</button></div></div>`).join("")},
 program(){return `<div class="row" style="margin-bottom:10px"><h2 class="sp" style="margin:0">🎯 Program Vision 2045</h2><button class="b y" data-a="addP">+ Program</button></div>`+PIL.map(p=>{const l=S.program.filter(x=>x.pilar==p);return l.length?`<div class="mut" style="margin:10px 0 4px"><b>${p}</b></div>`+l.map(x=>`<div class="card"><div class="row"><b class="sp">${esc(x.judul)}</b><span class="tag">Target ${esc(x.target)}</span></div><div class="bar"><i style="width:${+x.progres||0}%"></i></div><div class="mut">${+x.progres||0}% ${esc(x.catatan)}</div><div class="row"><button class="l" data-a="pg" data-d="-10" data-id="${x.id}">−10%</button><button class="l" data-a="pg" data-d="10" data-id="${x.id}">+10%</button><button class="l" data-a="editP" data-id="${x.id}">Ubah</button><button class="l r" data-a="delP" data-id="${x.id}">Hapus</button></div></div>`).join(""):""}).join("")},
 info(){return `<div class="row" style="margin-bottom:10px"><h2 class="sp" style="margin:0">📢 Pengumuman</h2><button class="b y" data-a="addI">+ Buat</button></div>`+(S.info.map(i=>`<div class="card"><b>${esc(i.judul)}</b> <span class="tag">${esc(i.divisi||"Umum")}</span> <span class="mut">${fd(i.tanggal)}${i.strip=="Tidak"?"":" · tampil di strip"}</span><div style="white-space:pre-wrap">${esc(i.isi)}</div><div class="row"><button class="l" data-a="copyI" data-id="${i.id}">Salin untuk WhatsApp</button><button class="l r" data-a="delI" data-id="${i.id}">Hapus</button></div></div>`).join("")||'<p class="mut">Belum ada pengumuman.</p>')},
@@ -1333,6 +1333,97 @@ function lvCard(){const s=stat(me.mid),i=LV.map(x=>s.p>=x[0]).lastIndexOf(true),
  return `<div class="card"><div class="lv"><div class="bd">${ico("trophy")}</div><div class="sp"><b style="font-size:17px">${LV[i][1]}</b><div class="mut">${s.p} poin kontribusi</div><div class="bar"><i style="width:${pc}%"></i></div><div class="mut">${n?(n[0]-s.p)+" poin lagi menjadi "+n[1]:"Level tertinggi. Terima kasih sudah menjaga Renco."}</div></div></div><div class="mut" style="margin-top:6px">Hadir ${s.h}× • Relawan ${s.rl}× • Usul ${s.us} • Dukungan ${s.dk}</div><div style="margin-top:6px">${BDG.map(([t,f])=>`<span class="tag ${f(s)?"ok":"bl"}">${f(s)?"★ ":""}${t}</span>`).join("")}</div></div>`}
 const evAct=k=>{if(!me.mid||!((k.sampai||k.tanggal)>=today()))return"";const r=k.rsvp||{},y=Object.values(r).filter(v=>v==1).length,mi=r[me.mid],rl=k.rel||[],b=+k.butuh||0,jo=rl.includes(me.mid);
  return `<div class="rv"><div class="mut">${y} anggota akan hadir${b?` • Relawan ${rl.length} dari ${b} dibutuhkan`:""}</div><div class="row"><button class="b ${mi==1?"y":"g"}" data-a="rsvp" data-id="${k.id}" data-v="1">${mi==1?"Anda akan hadir ✓":"Saya hadir"}</button><button class="b g" data-a="rsvp" data-id="${k.id}" data-v="0">${mi===0?"Belum bisa ✓":"Belum bisa"}</button>${b?`<button class="b ${jo?"y":"g"}" data-a="rel" data-id="${k.id}">${jo?"Siap membantu ✓":"Saya siap membantu"}</button>`:""}</div></div>`};
+const KOP=new Set(),isCmp=k=>k.jenis=="Campaign";
+const lnk=u=>{u=String(u||"").trim();if(!u)return"";if(!/^https?:\/\//i.test(u))u="https://"+u;return /^https?:\/\/[^\s"'<>]+$/i.test(u)?u:""};
+function kCard(k,n){const cmp=isCmp(k),op=KOP.has(k.id),jm=wk(k).replace(/ • $/,""),tl=lnk(k.tautan);
+ const st=cmp&&!k.tanggal?"Berjalan":ks(k);
+ let d="";
+ if(op){d='<div class="kd">'+(cmp?(jm?'<div class="mut">🕒 '+jm+'</div>':""):'<div class="mut">📍 '+esc(k.lokasi||"-")+(jm?" • 🕒 "+jm:"")+'</div>'+kMap(k))+(k.catatan?'<div>'+esc(k.catatan)+'</div>':"");
+  if(cmp){const ik=k.ikut||[],t=+k.target||0,mi=!!me.mid&&ik.includes(me.mid);
+   d+='<div class="mut">'+ik.length+' anggota berpartisipasi'+(t?' • target '+t:"")+'</div>';
+   if(t)d+='<div class="kbar"><i style="width:'+Math.min(100,Math.round(ik.length/t*100))+'%"></i></div>';
+   if(me.mid&&!k.arsip)d+='<div class="row"><button class="b '+(mi?"y":"g")+'" data-a="ikut" data-id="'+k.id+'">'+(mi?"Anda berpartisipasi ✓":"Saya ikut berpartisipasi")+'</button></div>';
+   if(tl)d+='<div class="row"><a class="b g" href="'+esc(tl)+'" target="_blank" rel="noopener noreferrer">🔗 Buka tautan</a></div>'}
+  else{d+=(isH(k)?'<div class="mut">Absensi dicatat setiap hari ('+hariK(k).length+' hari)</div>':k.hadir?'<div class="mut">Hadir '+k.hadir.length+' dari '+n+' anggota aktif ('+(n?Math.round(k.hadir.length/n*100):0)+'%)</div>':"")
+   +(me.mid&&k.hadir?(isH(k)?'<span class="tag '+(hcnt(k,me.mid)?"ok":"off")+'">Anda hadir '+hcnt(k,me.mid)+' dari '+hariK(k).length+' hari</span>':(k.hadir.includes(me.mid)?'<span class="tag ok">Anda hadir</span>':'<span class="tag off">Anda tidak hadir</span>')):"")+evAct(k)}
+  d+='<div class="row"><button class="l" data-a="editK" data-id="'+k.id+'">Ubah</button><button class="l r" data-a="delK" data-id="'+k.id+'">Hapus</button></div></div>'}
+ return '<div class="card kc"><div class="row kh" data-a="kdet" data-id="'+k.id+'"><b class="sp">'+esc(k.judul)+'</b>'+(cmp?'<span class="tag">📣 Campaign</span>':"")+'<span class="tag">'+st+'</span>'+(k.arsip?'<span class="tag">🗄️ Arsip</span>':"")+'</div>'
+  +(k.tanggal?'<div class="mut">'+fdr(k)+'</div>':"")
+  +'<div class="row kt"><button class="l" data-a="kdet" data-id="'+k.id+'">'+(op?"Sembunyikan rincian ▴":"Rincian ▾")+'</button><button class="l" data-a="bagi" data-id="'+k.id+'">📤 Bagikan</button></div>'+d+'</div>'}
+const KMP=new Set();
+const KGEO=new Set();
+function mapQ(k){var p=String(k.peta||"").trim(),c=p.replace(/\s+/g,"");if(isCo(c))return c;return String(k.lokasi||"").trim()}
+const isCo=p=>/^-?\d{1,3}(\.\d+)?,-?\d{1,3}(\.\d+)?$/.test(String(p||"").replace(/\s+/g,""));
+function mapUrl(k){var u=isCo(k.peta)?"":lnk(k.peta);if(u)return u;var q=mapQ(k);return q?"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q):""}
+function koor(k){var p=String(k.peta||"").trim();if(isCo(p)){var c=p.replace(/\s+/g,"").split(",");return[+c[0],+c[1]]}
+ var m=p.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)||p.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/)||p.match(/[?&](?:q|ll|query)=(-?\d+\.\d+)(?:,|%2C)(-?\d+\.\d+)/);if(m)return[+m[1],+m[2]];
+ if(k.koor&&k.koorQ==String(k.lokasi||"").trim())return k.koor;return null}
+function osmEmb(c){var d=.004,la=c[0],lo=c[1];return"https://www.openstreetmap.org/export/embed.html?bbox="+[lo-d*1.4,la-d,lo+d*1.4,la+d].map(function(x){return x.toFixed(6)}).join("%2C")+"&layer=mapnik&marker="+la+"%2C"+lo}
+function kMap(k){var u=mapUrl(k);if(!u)return'<div class="mut kgm">'+ico("pin")+' Lokasi belum diisi. Ketuk Ubah, isi kolom Lokasi atau Tautan peta / koordinat agar peta tampil.</div>';var q=mapQ(k),pl=isCo(k.peta)?"":lnk(k.peta),op=KMP.has(k.id),c=op?koor(k):null;
+ var h='<div class="row kmp"><button class="l" data-a="kmap" data-id="'+k.id+'">'+ico("map")+(op?" Sembunyikan peta":" Lihat peta")+'</button><a class="l" href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">'+ico("pin")+' Buka di Peta</a>'+(q&&(!pl||k.lokasi)?'<a class="l" href="https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(c?c[0]+","+c[1]:q)+'" target="_blank" rel="noopener noreferrer">'+ico("compass")+' Rute</a>':"")+'</div>';
+ if(op){if(c)h+='<div class="kfw"><iframe class="kfr" loading="lazy" referrerpolicy="no-referrer" src="'+osmEmb(c)+'" title="Peta lokasi"></iframe><div class="kcr">\u00A9 OpenStreetMap contributors</div></div>';
+  else if(KGEO.has(k.id))h+='<div class="mut kgm">Memuat peta\u2026</div>';
+  else h+='<div class="mut kgm">'+(KERR[k.id]=="net"?"Gagal mencari lokasi: tidak ada koneksi atau layanan peta diblokir. Isi koordinat (mis. -6.2088,106.8456) pada kolom \"Tautan peta / koordinat\" agar peta tetap tampil.":"Lokasi tidak ditemukan. Perjelas nama lokasi (tambahkan kota) atau isi koordinat pada kolom \"Tautan peta / koordinat\".")+'</div>'}
+ return h}
+const KERR={};
+function geoTry(u,pick){return fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(pick)}
+function kGeo(k){var q=String(k.lokasi||"").trim();if(!q||koor(k)||KGEO.has(k.id))return;KGEO.add(k.id);delete KERR[k.id];
+ var E=encodeURIComponent(q),tries=[
+  function(){return geoTry("https://photon.komoot.io/api/?limit=1&q="+E,function(j){var c=j&&j.features&&j.features[0]&&j.features[0].geometry.coordinates;return c?[+c[1],+c[0]]:null})},
+  function(){return geoTry("https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=id&q="+E,function(j){return j&&j[0]?[+j[0].lat,+j[0].lon]:null})}],
+  net=0,i=0;
+ (function nx(){if(i>=tries.length){KERR[k.id]=net==tries.length?"net":"nf";KGEO.delete(k.id);R();return}
+  tries[i++]().then(function(c){if(c&&isFinite(c[0])&&isFinite(c[1])){k.koor=[+c[0].toFixed(6),+c[1].toFixed(6)];k.koorQ=q;save();KGEO.delete(k.id);R()}else nx()},function(){net++;nx()})})();R()}
+function geoFind(q){var E=encodeURIComponent(q),T=[
+  function(){return geoTry("https://photon.komoot.io/api/?limit=1&q="+E,function(j){var c=j&&j.features&&j.features[0]&&j.features[0].geometry.coordinates;return c?[+c[1],+c[0]]:null})},
+  function(){return geoTry("https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=id&q="+E,function(j){return j&&j[0]?[+j[0].lat,+j[0].lon]:null})}];
+ return new Promise(function(ok,no){var i=0,net=0;(function nx(){if(i>=T.length)return net==T.length?no():ok(null);T[i++]().then(function(c){c&&isFinite(c[0])&&isFinite(c[1])?ok(c):nx()},function(){net++;nx()})})()})}
+function kfSetup(){var m=$("m"),L=m.querySelector('[data-k="lokasi"]'),P=m.querySelector('[data-k="peta"]');if(!L||!P||m.querySelector(".kpv"))return;
+ var hn=P.nextElementSibling,bx=document.createElement("div");bx.className="kpv";
+ bx.innerHTML='<div class="row kpb"><button class="l" type="button" id="kpg">'+ico("pin")+' Gunakan lokasi saya</button><button class="l" type="button" id="kpo">\u2699\uFE0F Pengaturan izin lokasi</button></div><div class="kpp" hidden></div><div class="kpm"></div>';
+ (hn&&hn.classList.contains("hint")?hn:P).insertAdjacentElement("afterend",bx);
+ var mp=bx.querySelector(".kpm"),tm=0,last=null;
+ function show(c){mp.innerHTML=c?'<div class="kfw"><iframe class="kfr" referrerpolicy="no-referrer" src="'+osmEmb(c)+'" title="Pratinjau peta"></iframe><div class="kcr">\u00A9 OpenStreetMap contributors</div></div>':""}
+ function run(){var pv=P.value.trim(),lv=L.value.trim(),key=pv+"|"+lv;if(key==last)return;last=key;
+  var c=koor({peta:pv,lokasi:lv});if(c)return show(c);
+  if(!lv)return show(null);
+  mp.innerHTML='<div class="mut kgm">Mencari lokasi\u2026</div>';
+  geoFind(lv).then(function(c){if(last!=key)return;if(c)show(c);else mp.innerHTML='<div class="mut kgm">Lokasi tidak ditemukan. Perjelas nama lokasi (tambahkan kota) atau isi koordinat.</div>'},function(){if(last==key)mp.innerHTML='<div class="mut kgm">Gagal mencari lokasi (tidak ada koneksi atau layanan diblokir). Isi koordinat agar peta tampil.</div>'})}
+ function upd(){clearTimeout(tm);tm=setTimeout(run,700)}
+ L.addEventListener("input",upd);P.addEventListener("input",upd);
+ var pp=bx.querySelector(".kpp");
+ function plat(){var u=navigator.userAgent||"";return /Android/i.test(u)?"android":/iPhone|iPad|iPod/i.test(u)||(navigator.platform=="MacIntel"&&navigator.maxTouchPoints>1)?"ios":"desktop"}
+ function langkah(p){return p=="android"?"<ol><li>Ketuk ikon <b>gembok/tune</b> di sebelah alamat situs \u2192 <b>Izin</b> (atau <b>Setelan situs</b>) \u2192 <b>Lokasi</b> \u2192 <b>Izinkan</b>.</li><li>Jika masih gagal: <b>Setelan HP</b> \u2192 <b>Lokasi</b> \u2192 aktifkan, lalu <b>Aplikasi</b> \u2192 browser Anda \u2192 <b>Izin</b> \u2192 <b>Lokasi</b> \u2192 <b>Izinkan</b>.</li><li>Kembali ke halaman ini, lalu ketuk <b>Coba lagi</b>.</li></ol>":p=="ios"?"<ol><li>Buka <b>Pengaturan</b> iPhone \u2192 <b>Privasi &amp; Keamanan</b> \u2192 <b>Layanan Lokasi</b> \u2192 aktifkan.</li><li>Di daftar yang sama pilih <b>Situs Web Safari</b> (atau browser Anda) \u2192 <b>Saat Menggunakan App</b>.</li><li>Atau di Safari ketuk <b>aA</b> \u2192 <b>Pengaturan Situs Web</b> \u2192 <b>Lokasi</b> \u2192 <b>Izinkan</b>.</li><li>Kembali ke halaman ini, lalu ketuk <b>Coba lagi</b>.</li></ol>":"<ol><li>Klik ikon <b>gembok/tune</b> di sebelah alamat situs \u2192 <b>Setelan situs</b> \u2192 <b>Lokasi</b> \u2192 <b>Izinkan</b>.</li><li>Pastikan layanan lokasi di sistem operasi aktif.</li><li>Muat ulang halaman atau klik <b>Coba lagi</b>.</li></ol>"}
+ function panel(judul,kode){var p=plat(),sec=window.isSecureContext===false;
+  pp.hidden=false;
+  pp.innerHTML='<div class="card" style="margin:6px 0"><div class="sh"><i>\uD83D\uDCCD</i>'+judul+'</div>'
+   +(sec?'<div class="mut" style="margin-bottom:6px">Halaman ini dibuka tanpa HTTPS, sehingga browser memblokir lokasi. Buka lewat alamat <b>https://</b> (atau localhost).</div>':'')
+   +'<div class="mut">'+langkah(p)+'</div>'
+   +'<div class="row kpb" style="margin-top:8px">'
+   +(p=="android"?'<button class="l" type="button" data-q="set">Buka pengaturan HP</button>':'')
+   +'<button class="l" type="button" data-q="coba">Coba lagi</button><button class="l" type="button" data-q="tutup">Tutup</button></div>'
+   +'<div class="mut kgm">Catatan: browser tidak mengizinkan situs membuka pengaturan secara langsung. Tombol di atas membuka pengaturan HP jika didukung, jika tidak ikuti langkah di atas.</div></div>';
+  if(kode==2)pp.querySelector(".mut").insertAdjacentHTML("beforebegin",'<div class="mut" style="margin-bottom:6px">Posisi tidak tersedia. Pastikan <b>Lokasi/GPS</b> perangkat aktif.</div>')}
+ function bukaSet(){var t0=Date.now();
+  try{location.href="intent:#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end"}catch(e){}
+  setTimeout(function(){if(!document.hidden&&Date.now()-t0<2500)alert("Pengaturan tidak bisa dibuka otomatis di perangkat/browser ini. Silakan ikuti langkah yang tertera.")},1200)}
+ function ambil(){mp.innerHTML='<div class="mut kgm">Mengambil lokasi Anda\u2026</div>';
+  if(!navigator.geolocation){mp.innerHTML="";return panel("Perangkat/browser ini tidak mendukung lokasi",0)}
+  navigator.geolocation.getCurrentPosition(function(g){pp.hidden=true;P.value=g.coords.latitude.toFixed(6)+","+g.coords.longitude.toFixed(6);run()},function(e){last=null;run();panel(e&&e.code==1?"Izin lokasi ditolak":e&&e.code==3?"Pengambilan lokasi terlalu lama":"Lokasi tidak bisa diambil",e&&e.code)},{enableHighAccuracy:true,timeout:15000})}
+ function pantau(){try{navigator.permissions&&navigator.permissions.query({name:"geolocation"}).then(function(s){s.onchange=function(){if(s.state=="granted"&&!pp.hidden)ambil()}})}catch(e){}}
+ pp.addEventListener("click",function(ev){var b=ev.target.closest("[data-q]");if(!b)return;var q=b.getAttribute("data-q");if(q=="set")bukaSet();else if(q=="coba")ambil();else pp.hidden=true});
+ bx.querySelector("#kpg").onclick=ambil;
+ bx.querySelector("#kpo").onclick=function(){var go=function(st){if(st=="granted"){pp.hidden=false;pp.innerHTML='<div class="card" style="margin:6px 0"><div class="mut">Izin lokasi sudah diberikan. Ketuk <b>Gunakan lokasi saya</b> untuk mengisi koordinat.</div><div class="row kpb" style="margin-top:6px"><button class="l" type="button" data-q="tutup">Tutup</button></div></div>'}else panel(st=="denied"?"Izin lokasi ditolak":"Izin lokasi belum diberikan",0)};
+  try{navigator.permissions?navigator.permissions.query({name:"geolocation"}).then(function(s){go(s.state)},function(){go("prompt")}):go("prompt")}catch(e){go("prompt")}};
+ pantau();
+ document.addEventListener("visibilitychange",function(){if(!document.hidden&&!pp.hidden&&pp.querySelector('[data-q="coba"]')&&m.contains(pp)){try{navigator.permissions&&navigator.permissions.query({name:"geolocation"}).then(function(s){if(s.state=="granted")ambil()})}catch(e){}}});
+ run()}
+{const _f2=form;form=function(t,fs,v,cb,ok){var kf=fs.some(function(f){return f.k=="peta"})&&fs.some(function(f){return f.k=="lokasi"})&&fs.some(function(f){return f.k=="jenis"&&(f.o||[]).indexOf("Campaign")>-1});
+ if(kf&&typeof cb=="function"){var cb0=cb;arguments[3]=cb=function(o){if(o.jenis=="Campaign"){o.lokasi="";o.peta=""}return cb0.apply(this,arguments)}}
+ var r=_f2.apply(this,arguments);try{if(fs.some(function(f){return f.k=="peta"})&&fs.some(function(f){return f.k=="lokasi"}))kfSetup();
+ if(kf){var m=$("m"),J=m.querySelector('select[data-k="jenis"]'),L=m.querySelector('[data-k="lokasi"]'),B=m.querySelector('[data-k="butuh"]');
+  if(J&&L&&B){var a=L.previousElementSibling,z=B.previousElementSibling,G=[];for(var e=a;e&&e!==z;e=e.nextElementSibling)G.push(e);
+   var tg=function(){var c=J.value=="Campaign";G.forEach(function(x){x.style.display=c?"none":""})};J.addEventListener("change",tg);tg()}}}catch(e){}return r}}
 const apL=l=>l.map(a=>`<div class="card ap"><div>“${esc(a.isi)}”</div><div class="mut">Untuk <b>${esc((S.anggota.find(x=>x.id==a.mid)||{}).nama||"-")}</b> • dari ${esc(a.dari)} • ${fd(a.tgl)}${(me.r!="Anggota"&&me.r!="Staff Khusus")?` <button class="l r" data-a="rmAp" data-id="${a.id}">Hapus</button>`:""}</div></div>`).join("");
 {const o=V_.homeA;V_.homeA=()=>{let h=o();const mm=S.anggota.find(x=>x.id==me.mid);if(!mm)return h;const nx=S.kegiatan.filter(k=>(k.sampai||k.tanggal)>=today()).sort((x,y)=>x.tanggal<y.tanggal?-1:1)[0],mu=USL().filter(u=>u.mid==me.mid&&u.st!="Baru")[0],ma=APR().filter(a=>a.mid==me.mid)[0],tot=done().reduce((t,k)=>t+k.hadir.length,0),
  need=nx?`<div class="card" style="border-left:4px solid var(--acc)"><div class="sh"><i>📅</i>Renco menunggu Anda</div><b>${esc(nx.judul)}</b><div class="mut">${fd(nx.tanggal)} • ${esc(nx.lokasi||"-")}</div>${(+nx.butuh||0)>(nx.rel||[]).length?`<div>Dibutuhkan ${nx.butuh-(nx.rel||[]).length} relawan lagi.</div>`:""}${evAct(nx)}</div>`:"",
@@ -2231,7 +2322,7 @@ A.pdfA=function(id){var k=S.kegiatan.find(function(x){return x.id==id});if(!k)re
  dlPdf(buildAbs(k),"daftar-hadir-"+slug(k.judul)+"-"+(k.tanggal||today())+".pdf")};
 A.pdfR=function(){var t=today(),y=t.slice(0,4),ym=t.slice(0,7);
  form("Rekap Absensi (PDF)",[{k:"cak",l:"Cakupan",t:"select",o:["Arsip saja","Semua kegiatan"]},{k:"per",l:"Periode (menurut tanggal kegiatan)",t:"select",o:["Semua periode","Bulan ini","Tahun ini"]}],{cak:AF=="arsip"?"Arsip saja":"Semua kegiatan",per:"Semua periode"},function(o){
-  var L=S.kegiatan.filter(function(k){return(o.cak!="Arsip saja"||k.arsip)&&(o.per=="Semua periode"||(k.tanggal||"").indexOf(o.per=="Bulan ini"?ym:y)==0)}).sort(function(a,b){return (a.tanggal||"")<(b.tanggal||"")?-1:(a.tanggal||"")>(b.tanggal||"")?1:0});
+  var L=S.kegiatan.filter(function(k){return k.jenis!="Campaign"&&(o.cak!="Arsip saja"||k.arsip)&&(o.per=="Semua periode"||(k.tanggal||"").indexOf(o.per=="Bulan ini"?ym:y)==0)}).sort(function(a,b){return (a.tanggal||"")<(b.tanggal||"")?-1:(a.tanggal||"")>(b.tanggal||"")?1:0});
   if(!L.length)return alert("Belum ada kegiatan pada cakupan ini."),false;
   dlPdf(buildRekap(L,o.cak+" - "+o.per),"rekap-absensi-"+t+".pdf")},"Unduh")};
 A.arsipK=function(id){var k=S.kegiatan.find(function(x){return x.id==id});if(!k)return;
@@ -2249,7 +2340,55 @@ var IKD={judul:"RencoPay",isi:"Catat dan pantau transaksi dengan mudah. Unduh la
 function ik(){var x=S.iklan||{};return{judul:x.judul||IKD.judul,isi:x.isi||IKD.isi,tombol:x.tombol||IKD.tombol,tampil:x.tampil||IKD.tampil}}
 PERM.adm.add("ubahIklan");
 A.ubahIklan=function(){var v=ik();form("Ubah Iklan RencoPay",[{k:"judul",l:"Judul iklan *"},{k:"isi",l:"Tulisan iklan",t:"textarea",r:1},{k:"tombol",l:"Tulisan tombol"},{k:"tampil",l:"Tampilkan iklan di Beranda",t:"select",o:["Ya","Tidak"]}],v,function(o){S.iklan={judul:o.judul,isi:o.isi,tombol:o.tombol||IKD.tombol,tampil:o.tampil};logA(me.n+": mengubah iklan RencoPay")},"Simpan")};
-window.kontakAdmin=function(){var m="rencovision@gmail.com";return '<div class="kad"><span>Hubungi admin: <a href="mailto:'+m+'">'+m+'</a></span></div>'};
+PERM.all.add("kmap");
+A.kmap=function(id){var k=S.kegiatan.find(function(x){return x.id==id});if(KMP.has(id))KMP.delete(id);else{KMP.add(id);if(k&&!koor(k)){kGeo(k);return}}R()};
+PERM.all.add("kdet");PERM.all.add("ikut");PERM.all.add("bagi");
+A.kdet=function(id){if(KOP.has(id))KOP.delete(id);else KOP.add(id);R()};
+A.ikut=function(id){var k=S.kegiatan.find(function(x){return x.id==id});if(!k||!me.mid||k.arsip)return;var a=k.ikut=k.ikut||[],i=a.indexOf(me.mid);if(i<0)a.push(me.mid);else a.splice(i,1);save();R()};
+A.bagi=function(id){var k=S.kegiatan.find(function(x){return x.id==id});if(!k)return;
+ var cmp=isCmp(k),jm=wk(k).replace(/ \u2022 $/,""),L=[],t=lnk(k.tautan);
+ L.push((cmp?"\uD83D\uDCE3 Campaign: ":"\uD83D\uDCC5 ")+k.judul);
+ if(k.tanggal)L.push("\uD83D\uDDD3\uFE0F "+fdr(k)+(jm?" \u2022 "+jm:""));
+ if(k.lokasi)L.push("\uD83D\uDCCD "+k.lokasi);var mu=mapUrl(k);if(mu)L.push("\uD83D\uDDFA\uFE0F "+mu);
+ if(cmp&&k.catatan)L.push(String(k.catatan).slice(0,280));
+ if(t)L.push("\uD83D\uDD17 "+t);
+ L.push(cmp?"Ayo ikut berpartisipasi! \uD83D\uDE4C":"Yuk hadir bersama! \uD83D\uDE4C");L.push("\u2014 Renco Vision 2045");
+ var web=/^https?:$/.test(location.protocol),url=web?location.href.split("#")[0]+"#kegiatan-"+k.id:"",txt=L.join("\n");
+ if(navigator.share){var o={title:k.judul,text:txt};if(url)o.url=url;navigator.share(o).catch(function(){});return}
+ var full=url?txt+"\n"+url:txt,ok=function(){alert("Info kegiatan disalin. Tempel di WhatsApp, Instagram, atau media sosial lain.")};
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(full).then(ok,function(){prompt("Salin info kegiatan:",full)});else prompt("Salin info kegiatan:",full)};
+(function(){var done=0,r1=R;R=function(){var x=r1.apply(this,arguments);try{if(!done&&me&&S.kegiatan&&/^#kegiatan-/.test(location.hash)){done=1;var id=location.hash.slice(10);if(S.kegiatan.some(function(k){return k.id==id})){KOP.add(id);A.go("kegiatan")}}}catch(e){}return x}})();
+Object.assign(IP,{
+pin:'<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+map:'<path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/>',
+compass:'<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>',
+clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+share:'<circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.6-4M8.2 13.2l7.6 4"/>',
+key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M16 7l3 3M14 9l2 2"/>',
+save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3M8 21v-7h8v7"/>',
+file:'<path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+camera:'<path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/>',
+x:'<path d="M6 6l12 12M18 6 6 18"/>',
+xc:'<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/>',
+checkc:'<circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/>',
+archive:'<rect x="3" y="4" width="18" height="4.5" rx="1.5"/><path d="M5 8.5V20h14V8.5M10 13h4"/>',
+bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+hand:'<path d="M8 12V6.5a1.5 1.5 0 0 1 3 0V11m0-5.5a1.5 1.5 0 0 1 3 0V11m0-4a1.5 1.5 0 0 1 3 0v6c0 4-2.5 7-6 7-2.6 0-4-1.4-5.3-3.5L4 13.5a1.5 1.5 0 0 1 2.5-1.6L8 14"/>',
+hands:'<path d="M3 11l4-4 4 1.5 3-1.5 4 4"/><path d="m3 11 5 5 2 1.5a1.5 1.5 0 0 0 2-2M21 11l-5 5-1.5 1.5a1.5 1.5 0 0 1-2-.5"/>',
+cloud:'<path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 9.5 4.3 4.3 0 0 1 17.5 18z"/>',
+star:'<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8L3.5 9.7l5.9-.9z"/>',
+box:'<path d="M4 8l8-4 8 4v9l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v9"/>'
+});
+var EMO={"\uD83D\uDCC5":"cal","\uD83D\uDDD3":"cal","\u2705":"checkc","\u2713":"check","\u2714":"check","\uD83D\uDC65":"users","\uD83D\uDCB0":"wallet","\uD83C\uDFAF":"target","\uD83D\uDCE2":"mega","\uD83D\uDCE3":"mega","\uD83D\uDDC4":"archive","\uD83D\uDD4A":"dove","\u26A0":"alert","\uD83D\uDCA1":"bulb","\uD83D\uDC4B":"hand","\uD83E\uDD1D":"hands","\uD83D\uDD10":"lock","\uD83D\uDE4B":"hand","\uD83D\uDCBE":"save","\uD83D\uDCC4":"file","\uD83D\uDCF7":"camera","\uD83D\uDCE8":"mail","\u2709":"mail","\uD83D\uDCAC":"chat","\uD83D\uDD17":"link","\u2717":"x","\u274C":"xc","\uD83C\uDFE0":"home","\uD83C\uDFDB":"landmark","\uD83C\uDF31":"sprout","\u2726":"spark","\uD83D\uDEE1":"shield","\uD83D\uDCF1":"phone","\uD83E\uDDEC":"dna","\uD83C\uDF82":"cake","\uD83D\uDCCA":"chart","\u2601":"cloud","\uD83C\uDFFA":"box","\u2605":"star","\uD83D\uDCCD":"pin","\uD83D\uDD52":"clock","\uD83D\uDCE4":"share","\uD83E\uDDFE":"receipt","\uD83D\uDC64":"user","\uD83D\uDD11":"key","\uD83C\uDF89":"spark","\u270F":"edit","\uD83D\uDDFA":"map","\uD83E\uDDED":"compass","\u23F0":"clock","\uD83D\uDD50":"clock","\uD83D\uDD52":"clock"};
+var EMR=new RegExp("("+Object.keys(EMO).join("|")+")\\uFE0F?","g");
+function emoSvg(n){var t=document.createElement("template");t.innerHTML='<svg class="ei" viewBox="0 0 24 24" aria-hidden="true">'+(IP[n]||"")+'</svg>';return t.content.firstChild}
+function emoFix(root){if(!root||root.nodeType!=1&&root.nodeType!=11&&root.nodeType!=3)return;var w=document.createTreeWalker(root.nodeType==3?root.parentNode:root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){var p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA|OPTION|TITLE|SELECT|NOSCRIPT)$/.test(p.nodeName)||p.closest&&p.closest("svg"))return NodeFilter.FILTER_REJECT;EMR.lastIndex=0;return EMR.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT}}),L=[],n;while(n=w.nextNode())L.push(n);
+ L.forEach(function(n){var t=n.nodeValue,f=document.createDocumentFragment(),last=0,m;EMR.lastIndex=0;while(m=EMR.exec(t)){if(m.index>last)f.appendChild(document.createTextNode(t.slice(last,m.index)));f.appendChild(emoSvg(EMO[m[1]]));last=m.index+m[0].length}if(last<t.length)f.appendChild(document.createTextNode(t.slice(last)));n.parentNode.replaceChild(f,n)})}
+var emoT=0,emoQ=function(){if(emoT)return;emoT=requestAnimationFrame(function(){emoT=0;emoFix(document.body)})};
+new MutationObserver(emoQ).observe(document.body,{childList:true,subtree:true,characterData:true});emoQ();
+["alert","confirm","prompt"].forEach(function(f){var o=window[f];window[f]=function(a,b){return o.call(window,typeof a=="string"?a.replace(EMR,"").replace(/ +/g," ").trim():a,b)}});
+window.kontakAdmin=function(){var m="rencovision@gmail.com";return '<div class="kad"><span>Hubungi admin: <a href="mailto:'+m+'">'+m+'</a></span><small>Versi 3 Okt 2026 \u2022 peta</small></div>'};
 })();
 </script>
 <style>
@@ -2283,5 +2422,22 @@ window.kontakAdmin=function(){var m="rencovision@gmail.com";return '<div class="
 </style>
 <style>
 .hv-hero .bd:nth-child(3n){opacity:.4}.hv-hero .bd:nth-child(3n) svg{filter:blur(.6px)}.hv-hero .bd:nth-child(4n+1){opacity:.52}
+</style>
+<style>
+.kc .kh{cursor:pointer;gap:6px;flex-wrap:wrap}
+.kc .kt{gap:8px;margin-top:4px}
+.kc .kd{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(120,120,120,.35);display:grid;gap:6px}
+.kc .kbar{height:6px;border-radius:99px;background:rgba(120,120,120,.2);overflow:hidden}
+.kc .kbar i{display:block;height:100%;background:linear-gradient(90deg,#2d7a4a,#d9b44a);border-radius:99px;transition:width .4s ease}
+.kc a.b{text-decoration:none;display:inline-flex;align-items:center}
+</style>
+<style>
+.ei{width:1.1em;height:1.1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.18em;flex:none;margin:0 .12em}
+.kc .kmp{gap:8px;flex-wrap:wrap}
+.kc .kmp .l,.kc .kmp a.l{text-decoration:none;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-family:inherit;font-weight:500;padding-left:4px;padding-right:4px}
+.kc .kfw{border-radius:12px;overflow:hidden;border:1px solid rgba(120,120,120,.25)}.kc .kfr{display:block;width:100%;height:220px;border:0;background:rgba(120,120,120,.12)}.kc .kcr{font-size:10px;padding:3px 8px;color:var(--mut);background:rgba(255,255,255,.7)}.kc .kgm{font-size:12px;padding:6px 2px}
+.kpv{margin:6px 0 4px}.kpv .kpb{gap:8px}.kpp .card{padding:10px 12px}.kpp ol{margin:4px 0 0 18px;padding:0}.kpp li{margin:3px 0}
+.kpv .l{display:inline-flex;align-items:center;gap:4px;font-size:12px}
+.kpv .kfw{margin-top:6px;border-radius:12px;overflow:hidden;border:1px solid rgba(120,120,120,.25)}.kpv .kfr{display:block;width:100%;height:200px;border:0;background:rgba(120,120,120,.12)}.kpv .kcr{font-size:10px;padding:3px 8px;color:var(--mut)}.kpv .kgm{font-size:12px;padding:6px 2px}
 </style>
 </body></html>
