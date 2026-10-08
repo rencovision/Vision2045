@@ -1310,9 +1310,10 @@ function csv(rows,name){if(!rows.length)return alert("Belum ada data.");const h=
 // ---- views
 const done=()=>S.kegiatan.filter(k=>k.hadir);
 const dvTx=t=>String(t||"").split(", ").filter(Boolean).map(d=>`<span class="dvt" style="color:${(STR.find(x=>x[0]==d)||[])[1]||"#6b7a72"}">${esc(d)}</span>`).join(", ");
+const mSort=(()=>{const jr=j=>{j=String(j||"").toLowerCase();return /wakil/.test(j)?1:/ketua/.test(j)?0:/sekretaris/.test(j)?2:/bendahara/.test(j)?3:4},dr=r=>{const i=DIV.indexOf(dvs(r)[0]);return i<0?99:i};return(a,b)=>dr(a)-dr(b)||jr(a.jabatan)-jr(b.jabatan)||String(a.nama||"").localeCompare(String(b.nama||""),"id")})();
 function memList(){if(!me)return"";const ql=(q||"").toLowerCase(),ini=n=>(n||"?").split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase();
- if((me.r=="Anggota"||me.r=="Staff Khusus"))return S.anggota.filter(r=>r.status!="Nonaktif"&&(!fdv||inDiv(r,fdv))&&(!q||[r.nama,r.divisi,r.jabatan].join(" ").toLowerCase().includes(ql))).map(r=>`<div class="mr"><div class="rw"><div class="av s" data-p="${esc(r.id)}">${esc(ini(r.nama))}</div><div class="mn"><b>${esc(r.nama)}</b><small>${dvTx(r.divisi)}${r.jabatan?`<span class="jbt">${esc(r.jabatan)}</span>`:""}</small></div></div></div>`).join("")||'<p class="mut" style="padding:14px;margin:0">Tidak ditemukan.</p>';
- const l=S.anggota.filter(r=>(!fdv||inDiv(r,fdv))&&(!q||[r.nama,r.alamat,r.keahlian,r.jabatan,mNo(r)].join(" ").toLowerCase().includes(ql))),dn=done();
+ if((me.r=="Anggota"||me.r=="Staff Khusus"))return S.anggota.filter(r=>r.status!="Nonaktif"&&(!fdv||inDiv(r,fdv))&&(!q||[r.nama,r.divisi,r.jabatan].join(" ").toLowerCase().includes(ql))).sort(mSort).map(r=>`<div class="mr"><div class="rw"><div class="av s" data-p="${esc(r.id)}">${esc(ini(r.nama))}</div><div class="mn"><b>${esc(r.nama)}</b><small>${dvTx(r.divisi)}${r.jabatan?`<span class="jbt">${esc(r.jabatan)}</span>`:""}</small></div></div></div>`).join("")||'<p class="mut" style="padding:14px;margin:0">Tidak ditemukan.</p>';
+ const l=S.anggota.filter(r=>(!fdv||inDiv(r,fdv))&&(!q||[r.nama,r.alamat,r.keahlian,r.jabatan,mNo(r)].join(" ").toLowerCase().includes(ql))).sort(mSort),dn=done();
  return l.map(r=>{const h=dn.filter(k=>k.hadir.includes(r.id)).length,ini=(r.nama||"?").split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase(),off=r.status=="Nonaktif",row=(k,v)=>v?`<div><span>${k}</span><b>${v}</b></div>`:"",wa=r.wa?`<a class="l" href="https://wa.me/${esc(String(r.wa).replace(/\D/g,"").replace(/^0/,"62"))}" target="_blank" rel="noopener">WhatsApp</a>`:"";
  return `<details class="mr${off?" off":""}"><summary><div class="av s" data-p="${esc(r.id)}">${esc(ini)}</div><div class="mn"><b>${esc(r.nama)}</b><small>${dvTx(r.divisi)}${r.jabatan?`<span class="jbt">${esc(r.jabatan)}</span>`:""}${off?`<span class="jbt" style="color:var(--red);font-weight:600">Nonaktif</span>`:""}</small></div><span class="chv">${ico("chev")}</span></summary><div class="md">${row("No.",mNo(r))}${row("Gabung",fd(r.gabung))}${row("Data",esc(r.jk)+" \u2022 "+age(r.lahir)+" th \u2022 "+gen(r.lahir))}${row("Alamat",esc(r.alamat))}${row("Keahlian",esc(r.keahlian))}${dn.length?row("Hadir",h+"/"+dn.length):""}<div class="ac">${wa}<button class="l" data-a="editM" data-id="${r.id}">Ubah</button><button class="l r" data-a="delM" data-id="${r.id}">Hapus</button></div></div></details>`}).join("")||'<p class="mut" style="padding:14px;margin:0">Belum ada anggota.</p>'}
 const V_={
@@ -1347,7 +1348,12 @@ homeA(){const mm=S.anggota.find(x=>x.id==me.mid),dn=done(),h=mm?dn.filter(k=>k.h
  return `<div class="wl"><div><div class="mut">Anggota Renco Vision 2045</div><h1>Halo, ${esc(me.n.split(" ")[0])} 👋</h1><div class="mut">${mm?esc(mm.divisi)+" • "+esc(mm.jabatan||"Anggota"):"Akun belum terhubung ke data anggota"}</div></div>${ring(pr)}</div><div class="grid"><div class="st"><i class="ic">✅</i><b>${h}/${dn.length}</b><span>Kehadiran Anda</span></div><div class="st"><i class="ic">📅</i><b>${up.length}</b><span>Kegiatan mendatang</span></div><div class="st"><i class="ic">👥</i><b>${S.anggota.filter(x=>x.status!="Nonaktif").length}</b><span>Anggota aktif</span></div><div class="st"><i class="ic">🎯</i><b>${pr}%</b><span>Progres Vision 2045</span></div></div><div class="card"><div class="sh"><i>📅</i>Kegiatan berikutnya</div>${evL(up)}</div>${quoteCard()}<div class="card"><div class="sh"><i>📢</i>Pengumuman terbaru</div>${S.info.slice(0,3).map(i=>`<div class="an"><b>${esc(i.judul)}</b><div class="mut" style="white-space:pre-wrap">${esc(i.isi)}</div></div>`).join("")||'<span class="mut">Belum ada.</span>'}</div>`}});
 const bad="Username wajib & unik, password minimal 6 karakter.";
 Object.assign(A,{
- reg:()=>(form("Daftar",[{k:"n",l:"Nama (sesuai KTP) *"},{k:"lahir",l:"Tahun lahir *",t:"number",ph:"Contoh: 1995",h:"Tanggal & bulan lahir bisa dilengkapi nanti di menu Profil."},{k:"jk",l:"Jenis kelamin",t:"select",o:["Laki-laki","Perempuan"]},{...WA,h:"Harus aktif, untuk verifikasi admin."},{...ALMR,l:"Alamat *"},{k:"u",l:"Username"},{k:"p",l:"Password",t:"password",ph:"Min. 6 karakter"}],{},o=>{if(o.alamat.startsWith("—"))return alert("Pilih RT alamat Anda."),false;{const y=+String(o.lahir||"").trim();if(!(y>=1900&&y<=new Date().getFullYear()))return alert("Isi tahun lahir dengan benar (4 angka, sesuai KTP)."),false;o.lahir=y+"-00-00"}{const w=(o.wa||"").replace(/\D/g,"");if(w.length<9||w.length>15)return alert("Isi no HP dengan benar dan aktif, karena dipakai admin untuk verifikasi."),false}const u=o.u.toLowerCase();if(!u||o.p.length<6||U.some(x=>x.u==u))return alert(bad),false;hash(o.p).then(h=>{U.push({id:uid(),n:o.n,u,h,r:"Anggota",s:"Menunggu",reg:{jk:o.jk,lahir:o.lahir,wa:o.wa,alamat:o.alamat}});saveU();logA("Pendaftaran baru: "+o.n);celebrate(o.n)})},"Kirim"),$("m").firstElementChild.classList.add("glass","regf")),
+ reg:()=>(form("Daftar",[{k:"n",l:"Nama (sesuai KTP) *"},{k:"lahir",l:"Tahun lahir *",t:"number",ph:"Contoh: 1995",h:"Tanggal & bulan lahir bisa dilengkapi nanti di menu Profil."},{k:"jk",l:"Jenis kelamin",t:"select",o:["Laki-laki","Perempuan"]},{...WA,h:"Harus aktif, untuk verifikasi admin."},{...ALMR,l:"Alamat *"},{k:"u",l:"Username"},{k:"p",l:"Password",t:"password",ph:"Min. 6 karakter"}],{},o=>{if(o.alamat.startsWith("—"))return alert("Pilih RT alamat Anda."),false;{const y=+String(o.lahir||"").trim();if(!(y>=1900&&y<=new Date().getFullYear()))return alert("Isi tahun lahir dengan benar (4 angka, sesuai KTP)."),false;o.lahir=y+"-00-00"}{const w=(o.wa||"").replace(/\D/g,"");if(w.length<9||w.length>15)return alert("Isi no HP dengan benar dan aktif, karena dipakai admin untuk verifikasi."),false}const u=o.u.toLowerCase();if(!u||o.p.length<6||U.some(x=>x.u==u))return alert(bad),false;
+{const nm=t=>String(t||"").trim().toLowerCase().replace(/\s+/g," "),th=String(o.lahir||"").slice(0,4);
+if(U.some(x=>{const m=S.anggota.find(q=>q.id==x.mid);return[x.reg&&x.reg.wa,m&&m.wa].some(v=>v&&nph(v)==nph(o.wa))})||S.anggota.some(q=>q.wa&&nph(q.wa)==nph(o.wa)))return alert("Nomor WhatsApp ini sudah terdaftar. Satu orang hanya bisa mendaftar satu kali. Jika itu nomor Anda, hubungi admin."),false;
+if(U.some(x=>nm(x.n)==nm(o.n)&&String(x.reg&&x.reg.lahir||"").slice(0,4)==th)||S.anggota.some(q=>nm(q.nama)==nm(o.n)&&String(q.lahir||"").slice(0,4)==th))return alert("Anda sudah terdaftar atau sedang menunggu persetujuan admin dengan nama dan tahun lahir yang sama. Pendaftaran ganda tidak bisa dilakukan."),false}
+if(A._regB)return false;A._regB=1;setTimeout(()=>{A._regB=0},4000);
+hash(o.p).then(h=>{if(U.some(x=>x.u==u))return;U.push({id:uid(),n:o.n,u,h,r:"Anggota",s:"Menunggu",reg:{jk:o.jk,lahir:o.lahir,wa:o.wa,alamat:o.alamat}});saveU();logA("Pendaftaran baru: "+o.n);celebrate(o.n)})},"Kirim"),$("m").firstElementChild.classList.add("glass","regf")),
  addU:()=>form("Tambah Akun",[{k:"n",l:"Nama lengkap *"},{k:"u",l:"Username"},{k:"p",l:"Password (min. 6 karakter)",t:"password"},{k:"r",l:"Peran",t:"select",o:["Anggota","Pengurus","Admin"]},{k:"dv",l:"Divisi Pengurus (hanya satu, wajib untuk Pengurus)",t:"select",o:["—",...DIV]}],{},o=>{const u=o.u.toLowerCase();if(!u||o.p.length<6||U.some(x=>x.u==u))return alert(bad),false;if(o.r=="Pengurus"&&o.dv=="—")return alert("Pilih divisi untuk Pengurus."),false;hash(o.p).then(h=>{const x={id:uid(),n:o.n,u,h,r:o.r,s:"Aktif"};if(o.r=="Pengurus")x.dv=o.dv;if(o.r!="Admin"){const m={id:uid(),nama:o.n,jk:"Laki-laki",divisi:o.r=="Pengurus"?o.dv:DIV[0],jabatan:"Anggota",status:"Aktif"};addMem(m);x.mid=m.id;save()}U.push(x);saveU();logA(me.n+" membuat akun "+o.n+" ("+o.r+")");R()})}),
  okU:id=>{const u=U.find(x=>x.id==id),r=u.reg||{};if(!u.mid){const m={id:uid(),nama:u.n,jk:r.jk||"Laki-laki",lahir:r.lahir,wa:r.wa,alamat:r.alamat,divisi:DIV[0],jabatan:"Anggota",status:"Aktif"};addMem(m);u.mid=m.id;save()}u.s="Aktif";saveU();logA(me.n+" menyetujui "+u.n);R()},
  stU:id=>{const u=U.find(x=>x.id==id);if(lastAdmin(u))return alert("Harus ada minimal satu Admin aktif.");u.s=(u.s||"Aktif")=="Aktif"?"Nonaktif":"Aktif";saveU();logA(`${me.n}: akun ${u.n} ${u.s}`);R()},
@@ -1453,7 +1459,7 @@ function kCard(k,n){const cmp=isCmp(k),op=KOP.has(k.id),jm=wk(k).replace(/ • $
  const kcl=(st=="Berlangsung"||st=="Berjalan"),kdv=(String(k.divisi||"").split(", ")[0]||""),kco=(typeof DCOL!="undefined"&&DCOL[kdv])||"#2f9e63";
  return '<div class="card kc'+(kcl?" kc-live":"")+'"'+' style="--kdc:'+kco+';--kdf:'+kco+'4d"'+'><div class="row kh" data-a="kdet" data-id="'+k.id+'"><b class="sp">'+esc(k.judul)+'</b>'+(cmp?'<span class="tag">📣 Campaign</span>':"")+'<span class="tag">'+st+'</span>'+(k.arsip?'<span class="tag">🗄️ Arsip</span>':"")+'</div>'
   +(k.tanggal?'<div class="mut">'+fdr(k)+'</div>':"")
-  +'<div class="row kt"><button class="l" data-a="kdet" data-id="'+k.id+'">'+(op?"Sembunyikan rincian ▴":"Rincian ▾")+'</button><button class="l" data-a="bagi" data-id="'+k.id+'">📤 Bagikan</button></div>'+d+'</div>'}
+  +'<div class="row kt"><button class="l" data-a="kdet" data-id="'+k.id+'">'+(op?"Sembunyikan rincian ▴":"Rincian ▾")+'</button><button class="l" data-a="bagi" data-id="'+k.id+'">📤 Bagikan<span class="bgc" title="Sudah dibagikan '+(+k.bagi||0)+' kali">'+(+k.bagi||0)+'×</span></button></div>'+d+'</div>'}
 const KMP=new Set();
 const KGEO=new Set();
 function mapQ(k){var p=String(k.peta||"").trim(),c=p.replace(/\s+/g,"");if(isCo(c))return c;return String(k.lokasi||"").trim()}
@@ -1766,13 +1772,13 @@ const invShow=(u,pw)=>{const mm=S.anggota.find(x=>x.id==u.mid)||{};IV={wa:waNum(
 window.invChk=()=>{const u=me&&U.find(x=>x.id==me.id);if(!u||!u.inv||u.inv.s!="p")return;const m=$("m");if(m.classList.contains("on"))return;
  m.innerHTML=`<div class="box" style="text-align:center"><div style="font-size:42px">🎉</div><h2>Undangan untuk Anda</h2><p class="mut" style="margin:0">Admin mengundang Anda sebagai</p><h3 style="margin:8px 0">${esc(lbl(u.inv))}</h3><p class="mut" style="margin:0 0 14px">Pilih <b>Setuju</b> untuk menerima jabatan ini, atau <b>Tolak</b> untuk tetap menjadi Anggota biasa.</p><div class="bt"><button class="b g" data-a="invNo">Tolak</button><button class="b y" data-a="invOk">Setuju</button></div></div>`;m.classList.add("on")};
 Object.assign(A,{
- invU:()=>form("Undang Akun",[{k:"n",l:"Nama lengkap *"},{...WA,l:"No. WhatsApp *",h:"Undangan dikirim ke nomor ini."},{k:"r",l:"Peran",t:"select",o:["Pengurus","Anggota","Staff Khusus","Admin"]},{k:"dv",l:"Divisi (wajib untuk Pengurus)",t:"select",o:["—",...DIV]},{k:"kat",l:"Kategori (wajib untuk Staff Khusus)",t:"select",o:["—","Tokoh Agama","Tokoh Adat","Tokoh Masyarakat"],h:"Staff Khusus berada di luar Divisi Program dan hanya memberi saran, masukan, dan kritik."},{k:"j",l:"Jabatan (mis. Ketua, Sekretaris, Bendahara)",ph:"Boleh dikosongkan"}],{r:"Pengurus",dv:"—",kat:"—"},o=>{
+ invU:()=>form("Undang Akun",[{k:"n",l:"Nama lengkap *"},{...WA,l:"No. WhatsApp *",h:"Undangan dikirim ke nomor ini."},{k:"jk",l:"Jenis kelamin *",t:"select",o:["Laki-laki","Perempuan"]},{k:"r",l:"Peran",t:"select",o:["Pengurus","Anggota","Staff Khusus","Admin"]},{k:"dv",l:"Divisi (wajib untuk Pengurus)",t:"select",o:["—",...DIV]},{k:"kat",l:"Kategori (wajib untuk Staff Khusus)",t:"select",o:["—","Tokoh Agama","Tokoh Adat","Tokoh Masyarakat"],h:"Staff Khusus berada di luar Divisi Program dan hanya memberi saran, masukan, dan kritik."},{k:"j",l:"Jabatan (mis. Ketua, Sekretaris, Bendahara)",ph:"Boleh dikosongkan"}],{r:"Pengurus",dv:"—",kat:"—",jk:"Laki-laki"},o=>{
   const w=(o.wa||"").replace(/\D/g,"");if(w.length<9||w.length>15)return alert("Isi nomor WhatsApp dengan benar."),false;
   if(o.r=="Pengurus"&&o.dv=="—")return alert("Pilih divisi untuk Pengurus."),false;
   if(U.some(x=>{const m=S.anggota.find(a=>a.id==x.mid);return[x.reg&&x.reg.wa,m&&m.wa].some(v=>v&&nph(v)==nph(o.wa))}))return alert("Nomor ini sudah terdaftar di akun lain."),false;
   const pw=rndPw(),un=mkUser(o.n),pg=o.r=="Pengurus";
-  if(o.r=="Staff Khusus"){if(!o.kat||o.kat=="—")return alert("Pilih kategori Staff Khusus."),false;hash(pw).then(h=>{const x={id:uid(),n:o.n,u:un,h,r:"Anggota",s:"Aktif",reg:{wa:o.wa},inv:{r:"Staff Khusus",dv:"",j:o.kat,k:o.kat,s:"p",t:new Date().toISOString()}};U.push(x);saveU();logA(me.n+" mengundang "+o.n+" ("+lbl(x.inv)+")");R();setTimeout(()=>invShow(x,pw),0)});return}
-  hash(pw).then(h=>{const m={id:uid(),nama:o.n,jk:"Laki-laki",wa:o.wa,divisi:pg?o.dv:DIV[0],jabatan:"Anggota",status:"Aktif"};addMem(m);
+  if(o.r=="Staff Khusus"){if(!o.kat||o.kat=="—")return alert("Pilih kategori Staff Khusus."),false;hash(pw).then(h=>{const x={id:uid(),n:o.n,u:un,h,r:"Anggota",s:"Aktif",reg:{wa:o.wa,jk:o.jk},inv:{r:"Staff Khusus",dv:"",j:o.kat,k:o.kat,s:"p",t:new Date().toISOString()}};U.push(x);saveU();logA(me.n+" mengundang "+o.n+" ("+lbl(x.inv)+")");R();setTimeout(()=>invShow(x,pw),0)});return}
+  hash(pw).then(h=>{const m={id:uid(),nama:o.n,jk:o.jk||"Laki-laki",wa:o.wa,divisi:pg?o.dv:DIV[0],jabatan:"Anggota",status:"Aktif"};addMem(m);
    const x={id:uid(),n:o.n,u:un,h,r:"Anggota",s:"Aktif",mid:m.id,inv:{r:o.r,dv:pg?o.dv:"",j:o.j||"",s:(o.r=="Anggota"&&!o.j)?"y":"p",t:new Date().toISOString()}};
    U.push(x);save();saveU();logA(me.n+" mengundang "+o.n+" ("+lbl(x.inv)+")");R();setTimeout(()=>invShow(x,pw),0)})},"Buat Undangan"),
  waU:id=>{const u=U.find(x=>x.id==id);if(!u||!u.inv||u.ll)return;if(!confirm("Buat password sementara baru dan kirim ulang undangan ke "+u.n+"?"))return;const pw=rndPw();hash(pw).then(h=>{u.h=h;saveU();logA(me.n+" mengirim ulang undangan "+u.n);invShow(u,pw)})},
@@ -2081,7 +2087,7 @@ boot();sbInit();
       var un=me.r=="Staff Khusus"?"Staff Khusus \u2022 "+X(u.kat||(u.inv&&u.inv.k)||"Staff Khusus"):(me.r=="Admin"?"Akun administrator \u2022 tidak terdaftar sebagai anggota.":"Akun belum terhubung ke data anggota. Hubungi admin.");
       body='<div class="pil"><div class="mut" style="padding:14px 0">'+un+'</div></div>';
     }
-    return '<section class="hv-hero sm"><svg viewBox="0 0 360 96" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg><div class="tx"><h2>Profil</h2><p>Mengenal lebih dekat</p></div></section>'
+    return '<section class="hv-hero sm pf"><svg viewBox="0 0 360 96" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg><div class="tx"><h2 class="hl"><img src="'+LOGO_HIJAU+'" alt="Renco Vision 2045" draggable="false"></h2></div></section>'
       +'<div class="pfc">'
       +'<div class="pfa"><div class="av pf-av" data-p="'+X(me.mid||"")+'" data-a="foto" title="Ketuk untuk ganti foto">'+X((me.n||"?")[0].toUpperCase())+'</div><span class="pcam" data-a="foto">'+ico("camera")+'</span></div>'
       +'<div class="pfn"><div class="pfh">'+X(me.n)+'</div><div class="pfs">@'+X(u.u)+' \u2022 '+X(me.r)+'</div>'+(ok?'<span class="pfv">'+ico("vshield")+'Akun Terverifikasi</span>':'')+'</div></div>'
@@ -2490,9 +2496,10 @@ A.bagi=function(id){var k=S.kegiatan.find(function(x){return x.id==id});if(!k)re
  if(t)L.push("\uD83D\uDD17 "+t);
  L.push(cmp?"Ayo ikut berpartisipasi! \uD83D\uDE4C":"Yuk hadir bersama! \uD83D\uDE4C");L.push("\u2014 Renco Vision 2045");
  var web=/^https?:$/.test(location.protocol),url=web?location.href.split("#")[0]+"#kegiatan-"+k.id:"",txt=L.join("\n");
- if(navigator.share){var o={title:k.judul,text:txt};if(url)o.url=url;navigator.share(o).catch(function(){});return}
- var full=url?txt+"\n"+url:txt,ok=function(){alert("Info kegiatan disalin. Tempel di WhatsApp, Instagram, atau media sosial lain.")};
- if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(full).then(ok,function(){prompt("Salin info kegiatan:",full)});else prompt("Salin info kegiatan:",full)};
+ var inc=function(){k.bagi=(+k.bagi||0)+1;save();R()};
+ if(navigator.share){var o={title:k.judul,text:txt};if(url)o.url=url;navigator.share(o).then(inc,function(){});return}
+ var full=url?txt+"\n"+url:txt,ok=function(){inc();alert("Info kegiatan disalin. Tempel di WhatsApp, Instagram, atau media sosial lain.")};
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(full).then(ok,function(){prompt("Salin info kegiatan:",full);inc()});else{prompt("Salin info kegiatan:",full);inc()}};
 (function(){var done=0,r1=R;R=function(){var x=r1.apply(this,arguments);try{if(!done&&me&&S.kegiatan&&/^#kegiatan-/.test(location.hash)){done=1;var id=location.hash.slice(10);if(S.kegiatan.some(function(k){return k.id==id})){KOP.add(id);A.go("kegiatan")}}}catch(e){}return x}})();
 Object.assign(IP,{
 pin:'<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
@@ -3970,4 +3977,71 @@ d.addEventListener("visibilitychange",function(){if(d.hidden){clearTimeout(tm);h
 @keyframes cr-wig{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-12deg)}94%{transform:rotate(10deg)}98%{transform:rotate(-5deg)}}
 @media (prefers-reduced-motion:reduce){#app .kp-fc.kp-sd .kp-fi,#app .kp-fc.kp-sd.open{animation:none}#app .b,#app .card,#app .kp-fc{transition:none}}
 </style>
+<style id="grad-cards">
+/* Gradasi lembut gaya Kontribusi/Dukungan (biru) dan Permakluman (kuning) untuk kartu di semua menu */
+#app .card:not(.kp-pm):not(.kp-dn):not(.dn-c):not(.ap):not(.kp-c):not(.kc),#app .pc{background:linear-gradient(110deg,#d6e8ff,#f3f8ff 55%,#fff 85%);border-color:#bcd6f5;box-shadow:0 4px 14px rgba(47,125,208,.14)}
+#app .card:not(.kp-pm):not(.kp-dn):not(.dn-c):not(.ap):not(.kp-c):not(.kc)[style*="border-left"]{background:linear-gradient(110deg,#fff3c2,#fffaf0 70%);border-color:#f0d27a;box-shadow:0 4px 14px rgba(224,168,0,.16)}
+</style>
+<style id="bgc-css">.bgc{display:inline-block;margin-left:7px;padding:1px 8px;border-radius:999px;background:#e3f4ec;color:#087F5B;font-weight:800;font-size:12px;line-height:1.5}</style>
+<style id="hvg-css">
+.hv-hero .hvp{position:absolute;z-index:4;right:10px;bottom:8px;border:0;border-radius:999px;padding:5px 11px;font:700 12px/1.2 system-ui,sans-serif;color:#fff;background:linear-gradient(135deg,#1fb27a,#087F5B);box-shadow:0 3px 0 rgba(0,0,0,.18);cursor:pointer;transition:transform .15s cubic-bezier(.34,1.56,.64,1)}
+.hv-hero .hvp:active{transform:translateY(2px) scale(.94)}
+.hv-hero .hvg{position:absolute;inset:0;width:100%;height:100%;z-index:5;touch-action:none;cursor:pointer;border-radius:inherit}
+.hv-hero .hvx{position:absolute;z-index:6;right:8px;top:6px;width:26px;height:26px;border:0;border-radius:50%;background:rgba(8,127,91,.9);color:#fff;font-size:13px;line-height:26px;padding:0;cursor:pointer}
+</style>
+<script id="hvg-js">(function(){
+var BK="rv_hg_best",app=document.getElementById("app");
+function best(){try{return+localStorage.getItem(BK)||0}catch(e){return 0}}
+function setBest(v){try{localStorage.setItem(BK,v)}catch(e){}}
+function tops(){try{return(S.hgTop||[]).slice().sort(function(a,b){return b.s-a.s})}catch(e){return[]}}
+function leader(){var t=tops()[0],b=best();return t&&t.s>=b?t:{n:"Anda",s:b}}
+function record(v){try{var nm=(me&&me.n)||"Anda",l=(S.hgTop||[]).slice(),e=l.find(function(q){return q.n==nm});if(e){if(v<=e.s)return;e.s=v}else l.push({n:nm,s:v});l.sort(function(a,b){return b.s-a.s});S.hgTop=l.slice(0,5);save()}catch(e){}}
+function play(h){
+ if(h.querySelector(".hvg"))return;
+ var c=document.createElement("canvas"),x=document.createElement("button");c.className="hvg";x.className="hvx";x.textContent="\u2715";x.setAttribute("aria-label","Tutup game");h.appendChild(c);h.appendChild(x);
+ var W=h.clientWidth,H=h.clientHeight,d=window.devicePixelRatio||1;c.width=W*d;c.height=H*d;
+ var g=c.getContext("2d");g.scale(d,d);
+ var G=H-14,J=H>120?10.5:8.4,GR=.6,p,ob,dist,coins,sp,nx,over,t=0,raf,last=performance.now();
+ function reset(){p={y:G,v:0};ob=[];dist=0;coins=0;sp=3.2;nx=50;over=false}
+ function jump(){if(over){reset();return}if(p.y>=G-.5)p.v=-J}
+ function stop(){cancelAnimationFrame(raf);c.remove();x.remove();document.removeEventListener("visibilitychange",vis)}
+ function vis(){if(document.hidden)last=performance.now()}
+ c.addEventListener("pointerdown",function(e){e.preventDefault();jump()});
+ x.addEventListener("click",function(e){e.stopPropagation();stop()});
+ document.addEventListener("visibilitychange",vis);
+ function score(){return Math.floor(dist/12)+coins*10}
+ function draw(){
+  var sk=g.createLinearGradient(0,0,0,H);sk.addColorStop(0,"#cfe6fa");sk.addColorStop(1,"#fff8e1");g.fillStyle=sk;g.fillRect(0,0,W,H);
+  g.fillStyle="rgba(255,255,255,.8)";var o=(dist*.3)%(W+80);g.beginPath();g.ellipse(W-o,H*.28,22,7,0,0,7);g.fill();
+  g.fillStyle="#9ccf9b";g.fillRect(0,G+2,W,H-G);g.fillStyle="#6bb36a";g.fillRect(0,G+2,W,3);
+  ob.forEach(function(q){if(q.c){if(q.got)return;g.fillStyle="#f5b800";g.beginPath();g.arc(q.x,q.y,6,0,7);g.fill();g.fillStyle="#fff3b0";g.beginPath();g.arc(q.x-1.5,q.y-1.5,2,0,7);g.fill()}else{g.fillStyle="#8a7a66";g.beginPath();g.moveTo(q.x,G+2);g.quadraticCurveTo(q.x+q.w/2,G+2-q.h*1.5,q.x+q.w,G+2);g.fill()}});
+  var y=p.y,l=Math.sin(t*.45)*5,a=p.y<G-.5;
+  g.strokeStyle="#3b3b3b";g.lineWidth=3;g.lineCap="round";g.beginPath();g.moveTo(40,y-8);g.lineTo(40+(a?5:l),y);g.moveTo(40,y-8);g.lineTo(40+(a?-4:-l),y);g.stroke();
+  g.fillStyle="#087F5B";g.beginPath();g.roundRect?g.roundRect(34,y-22,12,15,4):g.rect(34,y-22,12,15);g.fill();
+  g.fillStyle="#f1c08a";g.beginPath();g.arc(40,y-28,7,0,7);g.fill();
+  g.fillStyle="#065f46";g.beginPath();g.arc(40,y-30,7.5,Math.PI,0);g.fill();g.fillRect(40,y-31,10,3);
+  g.fillStyle="#222";g.beginPath();g.arc(43,y-28,1.3,0,7);g.fill();
+  g.fillStyle="#065f46";g.font="700 13px system-ui,sans-serif";g.textAlign="left";g.fillText("Skor "+score(),10,18);var L=leader();g.textAlign="right";g.fillStyle="#b07d00";g.fillText("\ud83c\udfc6 "+L.s,W-42,18);g.textAlign="left";g.fillStyle="#065f46";
+  g.textAlign="center";
+  if(dist<40&&!over){g.font="600 12px system-ui,sans-serif";g.fillText("Ketuk untuk melompat \u2022 kumpulkan koin",W/2,H/2)}
+  if(over){g.fillStyle="rgba(255,255,255,.85)";var L2=leader(),nb=score()>=L2.s&&score()>0;g.fillRect(W/2-125,H/2-36,250,72);g.fillStyle="#065f46";g.font="700 14px system-ui,sans-serif";g.fillText(nb?"\ud83c\udf89 Skor tertinggi baru: "+score():"Skor "+score()+" \u2022 Rekor Anda "+best(),W/2,H/2-14);g.font="600 12px system-ui,sans-serif";g.fillText("\ud83c\udfc6 Tertinggi: "+L2.n+" "+L2.s,W/2,H/2+4);g.fillText("Ketuk untuk main lagi",W/2,H/2+23)}
+ }
+ function loop(n){
+  if(!document.body.contains(c))return stop();
+  var k=Math.min((n-last)/16.7,3);last=n;
+  if(!over){
+   t+=k;dist+=sp*k;sp=Math.min(3.2+dist/900,6.5);
+   p.v+=GR*k;p.y=Math.min(G,p.y+p.v*k);if(p.y>=G)p.v=0;
+   nx-=sp*k;if(nx<=0){var r=Math.random();if(r<.4)ob.push({x:W+10,y:G-(Math.random()<.5?14:H>120?52:40),c:1});else ob.push({x:W+10,w:16+Math.random()*8,h:12+Math.random()*6});nx=70+Math.random()*70+sp*8}
+   ob.forEach(function(q){q.x-=sp*k;if(q.c&&!q.got&&Math.abs(q.x-40)<12&&Math.abs(q.y-(p.y-14))<20){q.got=1;coins++}
+    if(!q.c&&q.x<46&&q.x+q.w>34&&p.y>G-q.h*.75){over=true;if(score()>best())setBest(score());record(score())}});
+   ob=ob.filter(function(q){return q.x>-30});
+  }
+  draw();raf=requestAnimationFrame(loop);
+ }
+ reset();raf=requestAnimationFrame(loop);
+}
+function inject(){document.querySelectorAll(".hv-hero").forEach(function(h){if(h.querySelector(".hvp"))return;var b=document.createElement("button");b.className="hvp";b.type="button";b.textContent="\ud83c\udfae Main";b.setAttribute("aria-label","Main game mini");b.addEventListener("click",function(e){e.stopPropagation();play(h)});h.appendChild(b)})}
+inject();new MutationObserver(inject).observe(app,{childList:true,subtree:true});
+})();</script>
 </body></html>
